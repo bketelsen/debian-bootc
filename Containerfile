@@ -76,12 +76,9 @@ RUN mkdir -p /boot /sysroot /var/home /var/roothome /var/usrlocal /var/srv && \
     ln -s /var/usrlocal /usr/local && \
     ln -s /var/srv /srv
 
-RUN cd /
-RUN cd /root
-RUN cd /home
-RUN cd /usr/local
-RUN cd /srv
-RUN cd
+# Add our tmpfiles.d config for bootc
+COPY files/usr/lib/tmpfiles.d/bootc.conf /usr/lib/tmpfiles.d/bootc.conf
+RUN systemd-tmpfiles --create /usr/lib/tmpfiles.d/bootc.conf
 
 # Setup a temporary root passwd (changeme) for dev purposes
 # TODO: Replace this for a more robust option when in prod
