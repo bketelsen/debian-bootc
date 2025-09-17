@@ -4,9 +4,9 @@ set -euo pipefail
 # Simple launcher for the debian-bootc image with optional UEFI (OVMF) support.
 # Usage: ./launch.sh [--uefi|-u] [--firmware-code PATH] [--firmware-vars PATH] [-- help qemu args...]
 
-UEFI=0
-FIRMWARE_CODE=""
-FIRMWARE_VARS=""
+UEFI=1
+FIRMWARE_CODE="/usr/share/ovmf/OVMF.fd"
+FIRMWARE_VARS="/usr/share/OVMF/OVMF_VARS_4M.fd"
 EXTRA_ARGS=()
 
 while [ $# -gt 0 ]; do
