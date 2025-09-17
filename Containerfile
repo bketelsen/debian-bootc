@@ -31,6 +31,7 @@ RUN apt install -y \
   skopeo \
   dbus \
   fdisk \
+  qemu-guest-agent \
   systemd-boot*
 
 
@@ -40,7 +41,7 @@ RUN echo "$(basename "$(find /usr/lib/modules -maxdepth 1 -type d | grep -v -E "
     rm kernel_version.txt
 
 # If you want a desktop :)
-RUN apt install -y gnome
+RUN apt install -y gnome gnome-initial-setup
 
 # Alter root file structure a bit for ostree
 RUN mkdir -p /boot /sysroot /var/home /var/roothome /var/usrlocal /var/srv && \
