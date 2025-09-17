@@ -66,15 +66,22 @@ RUN echo "$(basename "$(find /usr/lib/modules -maxdepth 1 -type d | grep -v -E "
     rm kernel_version.txt
 
 # If you want a desktop :)
-RUN apt install -y gnome
+RUN apt install -y gnome gnome-initial-setup
 
 # Alter root file structure a bit for ostree
+RUN rm -rf /var/log /home /root /usr/local /srv
 RUN mkdir -p /boot /sysroot /var/home /var/roothome /var/usrlocal /var/srv && \
-    rm -rf /var/log /home /root /usr/local /srv && \
     ln -s /var/home /home && \
     ln -s /var/roothome /root && \
     ln -s /var/usrlocal /usr/local && \
     ln -s /var/srv /srv
+
+RUN cd /
+RUN cd /root
+RUN cd /home
+RUN cd /usr/local
+RUN cd /srv
+RUN cd
 
 # Setup a temporary root passwd (changeme) for dev purposes
 # TODO: Replace this for a more robust option when in prod

@@ -68,6 +68,12 @@ To start and view:
 incus start debian-bootc && incus console --type=vga debian-bootc
 ```
 
+### QEMU
+
+```
+./launch.sh -u --firmware-code /usr/share/ovmf/OVMF.fd --firmware-vars /usr/share/OVMF/OVMF_VARS_4M.fd
+```
+
 # Fixes
 
 - `mount /dev/vda2 /sysroot/boot` - You need this to get `bootc status` and other stuff working
