@@ -5,7 +5,7 @@ filesystem := env("BUILD_FILESYSTEM", "ext4")
 
 build-containerfile:
     sudo podman build \
-        --no-cache -t {{image_name}}:latest .
+        --pull=always -t localhost/{{image_name}}:latest .
 
 bootc *ARGS:
     sudo podman run \
