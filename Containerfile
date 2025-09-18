@@ -2,9 +2,13 @@ FROM docker.io/library/debian:unstable
 
 COPY files/ostree/prepare-root.conf /usr/lib/ostree/prepare-root.conf
 
-ENV DEBIAN_FRONTEND=noninteractive
+ARG DEBIAN_FRONTEND=noninteractive
+# Antipattern but we are doing this since `apt`/`debootstrap` does not allow chroot installation on unprivileged podman builds
+ENV DEV_DEPS="libzstd-dev libssl-dev pkg-config libostree-dev curl git build-essential meson libfuse3-dev go-md2man dracut whois"
 
-RUN apt update -y && apt install -y libzstd-dev libssl-dev pkg-config libostree-dev curl git build-essential meson libfuse3-dev ostree
+RUN rm /etc/apt/apt.conf.d/docker-gzip-indexes /etc/apt/apt.conf.d/docker-no-languages && \
+    apt update -y && \
+    apt install -y $DEV_DEPS ostree
 
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 
@@ -37,6 +41,7 @@ RUN --mount=type=tmpfs,dst=/tmp cd /tmp && \
     ninja -C build && \
     ninja -C build install
 
+ENV DRACUT_NO_XATTR=1
 RUN apt install -y \
   dracut \
   podman \
@@ -65,20 +70,30 @@ RUN echo "$(basename "$(find /usr/lib/modules -maxdepth 1 -type d | grep -v -E "
     cp /boot/vmlinuz-$(cat kernel_version.txt) "/usr/lib/modules/$(cat kernel_version.txt)/vmlinuz" && \
     rm kernel_version.txt
 
+
+RUN apt remove -y $DEV_DEPS && \
+    apt autoremove -y
+ENV DEV_DEPS=
+
+
 # If you want a desktop :)
 RUN apt install -y gnome gnome-initial-setup
 
 # Alter root file structure a bit for ostree
-RUN rm -rf /var/log /home /root /usr/local /srv
-RUN mkdir -p /boot /sysroot /var/home /var/roothome /var/usrlocal /var/srv && \
+RUN rm -rf /var/log /home /root /usr/local /srv /opt
+RUN mkdir -p /boot /sysroot /var/home /var/roothome /var/usrlocal /var/srv /var/opt && \
     ln -s /var/home /home && \
     ln -s /var/roothome /root && \
     ln -s /var/usrlocal /usr/local && \
-    ln -s /var/srv /srv
+    ln -s /var/srv /srv && \
+    ln -s /var/opt /opt
 
 # Add our tmpfiles.d config for bootc
 COPY files/usr/lib/tmpfiles.d/bootc.conf /usr/lib/tmpfiles.d/bootc.conf
 RUN systemd-tmpfiles --create /usr/lib/tmpfiles.d/bootc.conf
+
+# Update useradd default to /var/home instead of /home for User Creation
+RUN sed -i 's|^HOME=.*|HOME=/var/home|' "/etc/default/useradd"
 
 # Setup a temporary root passwd (changeme) for dev purposes
 # TODO: Replace this for a more robust option when in prod
