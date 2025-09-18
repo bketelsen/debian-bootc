@@ -13,6 +13,7 @@ apt install -y \
         gnome-software-plugin-fwupd \
         baobab \
         evince \
+        flatpak \
         gnome-backgrounds \
         gnome-calculator \
         gnome-calendar \
@@ -56,5 +57,7 @@ ln -s /usr/lib/systemd/system/gdm3.service /etc/systemd/system/display-manager.s
 
 cp /ctx/10-particleos.preset /usr/lib/systemd/system-preset/10-particleos.preset
 systemctl preset-all
+
+flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
 
 ### Cleanup
