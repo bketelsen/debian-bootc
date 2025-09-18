@@ -49,6 +49,7 @@ apt install -y \
 
 
 ### Enable services
+rm -f /etc/systemd/system/display-manager.service
 ln -s /usr/lib/systemd/system/gdm3.service /etc/systemd/system/display-manager.service
 
 ### Filesystem changes
