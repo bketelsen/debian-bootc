@@ -3,9 +3,17 @@ image_tag := env("BUILD_IMAGE_TAG", "latest")
 base_dir := env("BUILD_BASE_DIR", ".")
 filesystem := env("BUILD_FILESYSTEM", "ext4")
 
-build-containerfile:
+clean:
+    rm -f /tmp/debian-bootc.img
+    rm -rf ./mkosi.output/base
+    rm -rf ./mkosi.output/*
+
+image:
+    mkosi build -f
+
+build-containerfile: image
     sudo podman build \
-        --pull=always -t localhost/{{image_name}}:latest .
+         -t localhost/{{image_name}}:latest .
 
 bootc *ARGS:
     sudo podman run \
