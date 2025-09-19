@@ -3,6 +3,10 @@ image_tag := env("BUILD_IMAGE_TAG", "latest")
 base_dir := env("BUILD_BASE_DIR", ".")
 filesystem := env("BUILD_FILESYSTEM", "ext4")
 
+clean:
+    rm -f /tmp/debian-bootc.img
+    rm -rf ./mkosi.output/base
+    rm -rf ./mkosi.output/*
 
 image:
     mkosi build -f

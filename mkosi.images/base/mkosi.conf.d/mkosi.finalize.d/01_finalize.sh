@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: LGPL-2.1-or-later
 set -e
 
+echo "Running mkosi finalize script in chroot..."
+exit 1
 # Capture the entirety of /etc in /usr/share/factory/etc so we can use
 # systemd-tmpfiles to symlink individual directories from it to /etc.
 mkdir -p "$BUILDROOT/usr/share/factory/"
@@ -9,11 +11,10 @@ cp --archive --no-target-directory --update=none "$BUILDROOT/etc" "$BUILDROOT/us
 mkdir -p "$BUILDROOT/usr/share/factory/opt/microsoft/msedge"
 cp --archive --no-target-directory --update=none "$BUILDROOT/opt/microsoft/msedge" "$BUILDROOT/usr/share/factory/opt/microsoft/msedge"
 
-# find the vmlinuz file in /usr/lib/modules and get the directory name
-VMLFile=$(find "$BUILDROOT/usr/lib/modules" -maxdepth 2 -type f -name 'vmlinuz' | head -n 1)
-if [ -z "$VMLFile" ]; then
-    echo "vmlinuz file not found"
-    exit 1
-fi
-KERNEL_DIR=$(dirname "$VMLFile")
-cp "$BUILDROOT/initrd.img" "$KERNEL_DIR/initramfs.img"
+
+
+export KERNEL_VERSION="$(basename "$(find $BUILDROOT/usr/lib/modules -maxdepth 1 -type d | tail -n 1)")"
+dracut --force --no-hostonly --reproducible --zstd --verbose --kver "$KERNEL_VERSION"  "$BUILDROOT/usr/lib/modules/$KERNEL_VERSION/initramfs.img"
+ls -la "$BUILDROOT/usr/lib/modules/$KERNEL_VERSION/"
+
+ls -la "$BUILDROOT/boot/"
