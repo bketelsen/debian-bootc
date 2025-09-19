@@ -32,6 +32,12 @@ echo "keep" > /usr/src/.keep
 
 export KERNEL_VERSION="$(basename "$(find /usr/lib/modules -maxdepth 1 -type d | tail -n 1)")"
 dracut --force --no-hostonly --reproducible --zstd --verbose --kver "$KERNEL_VERSION"  "/usr/lib/modules/$KERNEL_VERSION/initramfs.img"
-ls -la "/usr/lib/modules/$KERNEL_VERSION/"
 
-ls -la "/boot/"
+find /usr -xdev -user root -perm -4000 -print > /usr/share/factory/etc/suid-bins.txt
+find /opt -xdev -user root -perm -4000 -print >> /usr/share/factory/etc/suid-bins.txt
+
+chmod 644 /usr/share/factory/etc/suid-bins.txt
+
+find /usr -xdev -user root -perm -2000 -print > /usr/share/factory/etc/sgid-bins.txt
+find /opt -xdev -user root -perm -2000 -print >> /usr/share/factory/etc/sgid-bins.txt
+chmod 644 /usr/share/factory/etc/sgid-bins.txt

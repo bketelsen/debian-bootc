@@ -18,6 +18,15 @@ RUN rm microsoft-edge.gpg
 
 RUN systemd-tmpfiles --create /usr/lib/tmpfiles.d/bootc.conf
 
+# re-add the setuid/sgid flags to the binaries we identified at package install time
+RUN set -o pipefail && \
+    if [ -f /usr/share/factory/etc/suid-bins.txt ]; then \
+        xargs -a /usr/share/factory/etc/suid-bins.txt chmod u+s; \
+    fi && \
+    if [ -f /usr/share/factory/etc/sgid-bins.txt ]; then \
+        xargs -a /usr/share/factory/etc/sgid-bins.txt chmod g+s; \
+    fi
+
 ### LINTING
 ## Verify final image and contents are correct.
 RUN bootc container lint
