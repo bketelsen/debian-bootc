@@ -3,9 +3,13 @@ image_tag := env("BUILD_IMAGE_TAG", "latest")
 base_dir := env("BUILD_BASE_DIR", ".")
 filesystem := env("BUILD_FILESYSTEM", "ext4")
 
-build-containerfile:
+
+image:
+    mkosi build -f
+
+build-containerfile: image
     sudo podman build \
-        --pull=always -t localhost/{{image_name}}:latest .
+         -t localhost/{{image_name}}:latest .
 
 bootc *ARGS:
     sudo podman run \

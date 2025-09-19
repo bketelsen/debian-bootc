@@ -2,3 +2,9 @@ cosign.key
 _build_*
 output
 _build-*/**
+.mkosi-private/
+mkosi.cache/
+mkosi.tools/
+mkosi.output/
+mkosi.tools.manifest
+mkosi.builddir/**
