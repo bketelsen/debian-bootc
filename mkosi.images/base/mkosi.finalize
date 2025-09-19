@@ -8,3 +8,12 @@ mkdir -p "$BUILDROOT/usr/share/factory/"
 cp --archive --no-target-directory --update=none "$BUILDROOT/etc" "$BUILDROOT/usr/share/factory/etc"
 mkdir -p "$BUILDROOT/usr/share/factory/opt/microsoft/msedge"
 cp --archive --no-target-directory --update=none "$BUILDROOT/opt/microsoft/msedge" "$BUILDROOT/usr/share/factory/opt/microsoft/msedge"
+
+# find the vmlinuz file in /usr/lib/modules and get the directory name
+VMLFile=$(find "$BUILDROOT/usr/lib/modules" -maxdepth 2 -type f -name 'vmlinuz' | head -n 1)
+if [ -z "$VMLFile" ]; then
+    echo "vmlinuz file not found"
+    exit 1
+fi
+KERNEL_DIR=$(dirname "$VMLFile")
+cp "$BUILDROOT/initrd.img" "$KERNEL_DIR/initramfs.img"
