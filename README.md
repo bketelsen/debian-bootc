@@ -30,3 +30,7 @@ Then you can run the `/tmp/debian-bootc.img` as your boot disk in your preferred
 ## Fixes
 
 - `mount /dev/vda2 /sysroot/boot` - You need this to get `bootc status` and other stuff working. This can be fixed with a mount file or something similar inside the image later.
+
+## Inspirations, and Copy-Pasta
+
+- [ParticleOS](https://github.com/systemd/particleos) - 90% of the mkosi image is original particleos configuration. License LGPL v2.1
