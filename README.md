@@ -1,8 +1,8 @@
 # Debian Bootc
 
-Experiment to see if Bootc could work on Debian
+Avert your eyes! What you see before you is the unholy union of [mkosi](https://github.com/systemd/mkosi) and [bootc](https://github.com/bootc-dev/bootc). A _mostly_ declarative image generated with `mkosi` is subsequently added to a SCRATCH container. Sprinkle in a little `bootc` magic and you have a container image that can be installed to disk and booted.
 
-<img width="2196" height="1239" alt="image" src="https://github.com/user-attachments/assets/0b031de0-5593-49e8-8e5a-535ebdcf46e3" />
+You should not use this, nor should you try to learn from what has been done here. Instead, weep...
 
 ## Building
 
@@ -21,59 +21,12 @@ Then you can run the `/tmp/debian-bootc.img` as your boot disk in your preferred
 
 ## Running
 
-I'm using `incus` like so:
-
-```shell
-$ sudo incus-migrate
-The local Incus server is the target [default=yes]:
-
-What would you like to create?
-1) Container
-2) Virtual Machine
-3) Virtual Machine (from .ova)
-4) Custom Volume
-
-Please enter the number of your choice: 2
-Name of the new instance: debian-bootc
-Please provide the path to a disk, partition, or qcow2/raw/vmdk image file: /tmp/debian-bootc.img
-Does the VM support UEFI booting? [default=yes]: yes
-Does the VM support UEFI Secure Boot? [default=yes]: no
-
-Instance to be created:
-  Name: debian-bootc
-  Project: default
-  Type: virtual-machine
-  Source: /tmp/debian-bootc.img
-  Source format: raw
-  Config:
-    security.secureboot: "false"
-
-Additional overrides can be applied at this stage:
-1) Begin the migration with the above configuration
-2) Override profile list
-3) Set additional configuration options
-4) Change instance storage pool or volume size
-5) Change instance network
-6) Add additional disk
-7) Change additional disk storage pool
-
-Please pick one of the options above [default=1]: 1
-```
-
-The `incus-migrate` command takes several minutes as it tranforms the image into whatever it is that Incus wants.
-
-To start and view:
-
-```shell
-incus start debian-bootc && incus console --type=vga debian-bootc
-```
-
 ### QEMU
 
 ```
-./launch.sh -u --firmware-code /usr/share/ovmf/OVMF.fd --firmware-vars /usr/share/OVMF/OVMF_VARS_4M.fd
+./launch.sh
 ```
 
-# Fixes
+## Fixes
 
-- `mount /dev/vda2 /sysroot/boot` - You need this to get `bootc status` and other stuff working
+- `mount /dev/vda2 /sysroot/boot` - You need this to get `bootc status` and other stuff working. This can be fixed with a mount file or something similar inside the image later.
