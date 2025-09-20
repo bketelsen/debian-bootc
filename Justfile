@@ -8,10 +8,25 @@ clean:
     rm -rf ./mkosi.output/base
     rm -rf ./mkosi.output/*
 
-image:
+image-local:
     mkosi build -f
 
-build-containerfile: image
+mkosi-image:
+    sudo podman build \
+    -v "$(realpath {{base_dir}})":/build:Z \
+         -f ./Containerfile.mkosi \
+         -t localhost/mkosibuilder:latest
+    sudo podman run \
+        --rm \
+        --privileged \
+        -it \
+        -v "$(realpath {{base_dir}})":/build:z \
+        -v "/var/tmp":/var/tmp:z \
+        --security-opt label=type:unconfined_t \
+        localhost/mkosibuilder:latest \
+        mkosi build -f
+
+build: mkosi-image
     sudo podman build \
          -t localhost/{{image_name}}:latest .
 

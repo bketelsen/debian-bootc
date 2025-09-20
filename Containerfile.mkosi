@@ -1,0 +1,16 @@
+# Allow build scripts to be referenced without being copied into the final image
+FROM docker.io/library/debian:unstable
+
+ARG DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y \
+    mkosi \
+    git
+WORKDIR /root
+RUN mkdir -p ~/.local/bin
+RUN git clone https://github.com/systemd/mkosi.git
+RUN ln -s $PWD/mkosi/bin/mkosi ~/.local/bin/mkosi
+ENV PATH="/root/.local/bin:${PATH}"
+RUN mkosi --version
+RUN cd /build
+WORKDIR /build
+RUN ls -la .

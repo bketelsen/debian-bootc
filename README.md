@@ -11,7 +11,7 @@ Build uses podman. The `bootc` tooling is very heavily skewed towards this, dock
 In order to get a running debian-bootc system you can run the following steps:
 
 ```shell
-just build-containerfile # This will build the containerfile and all the dependencies you need
+just build # This will build the containerfile and all the dependencies you need
 just generate-bootable-image # Generates a bootable image for you using bootc!
 ```
 
