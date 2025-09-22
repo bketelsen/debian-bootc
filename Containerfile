@@ -4,6 +4,7 @@ COPY mkosi.output/base/ /
 
 RUN ls -la /
 
+
 ### Prepare final image
 RUN rm -rf /var /boot && \
     ln -s /var/home /home && \
@@ -26,6 +27,8 @@ RUN set -o pipefail && \
     if [ -f /usr/share/factory/etc/sgid-bins.txt ]; then \
         xargs -a /usr/share/factory/etc/sgid-bins.txt chmod g+s; \
     fi
+
+RUN userdel -f root
 
 ### LINTING
 ## Verify final image and contents are correct.

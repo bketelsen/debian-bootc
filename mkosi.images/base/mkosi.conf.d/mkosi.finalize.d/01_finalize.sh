@@ -15,6 +15,3 @@ cp --archive --no-target-directory --update=none "$BUILDROOT/opt/microsoft/msedg
 
 export KERNEL_VERSION="$(basename "$(find $BUILDROOT/usr/lib/modules -maxdepth 1 -type d | tail -n 1)")"
 dracut --force --no-hostonly --reproducible --zstd --verbose --kver "$KERNEL_VERSION"  "$BUILDROOT/usr/lib/modules/$KERNEL_VERSION/initramfs.img"
-ls -la "$BUILDROOT/usr/lib/modules/$KERNEL_VERSION/"
-
-ls -la "$BUILDROOT/boot/"
