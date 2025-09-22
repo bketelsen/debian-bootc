@@ -1,0 +1,45 @@
+      - name: "gather"
+        env:
+          PR: ${{ github.event_name == 'pull_request' }}
+          FORCE_REBUILD: ${{ inputs.force-rebuild }}
+          SYSEXTS: '%%SYSEXTS%%'
+        shell: bash
+        run: |
+          set -euxo pipefail
+
+          if [[ "${PR}" == "true" ]]; then
+            echo "Pull request detected. Skipping release creation."
+            exit 0
+          fi
+          echo "Sleeping to wait for previous releases to be ready..."
+          sleep 180 # wait for previous releases to be ready
+
+          rm -f ./SHA256SUMS* ./*.conf
+
+          # Gather Sysext named releases and their SHA256SUMS files
+          for sysext in $(echo ${SYSEXTS} | tr ';' ' '); do
+              curl --location --fail --output "SHA256SUMS.${sysext}" "${RELEASEURL}/${sysext}/SHA256SUMS" || touch "SHA256SUMS.${sysext}"
+          done
+          curl --location --fail --output "SHA256SUMS.SNOW" "${RELEASEURL}/SNOW/SHA256SUMS" || touch "SHA256SUMS.SNOW"
+
+          ls ./SHA256SUMS.* | sort -h | xargs cat > SHA256SUMS
+
+          {
+          echo "Versions available:"
+          echo "\`\`\`"
+          cat ./SHA256SUMS
+          echo "\`\`\`"
+          } > notes
+
+          gh release delete \
+            --cleanup-tag \
+            --yes \
+            latest \
+            || true
+
+          gh release create \
+            --title "SNOW Linux Releases" \
+            --notes-file notes \
+            latest \
+            --latest=true \
+            ./SHA256SUMS
