@@ -36,6 +36,11 @@ jobs:
       id-token: write
 
     steps:
+      - name: setup-mkosi
+        uses: systemd/mkosi@main
+      - name: build
+        run: |
+          mkosi build -f
       - name: Prepare environment
         run: |
           # Lowercase the image uri

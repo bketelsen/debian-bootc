@@ -1,0 +1,101 @@
+      - name: "push main image"
+        env:
+          PR: ${{ github.event_name == 'pull_request' }}
+          FORCE_REBUILD: ${{ inputs.force-rebuild }}
+        shell: bash
+        run: |
+          set -euxo pipefail
+          OUTPUTDIR="./mkosi.output"
+
+          # find the first file in the output directory that matches the pattern "SNOW_*.manifest"
+          MANIFEST_FILE=$(find "$OUTPUTDIR" -maxdepth 1 -type f -name "SNOW_*.manifest" | head -n 1)
+          echo "Found manifest file: $MANIFEST_FILE"
+
+          ARCH=$(jq -r '.config.architecture' "$MANIFEST_FILE")
+          VERSION=$(jq -r '.config.version' "$MANIFEST_FILE")
+          IMAGE_ID=$(jq -r '.config.name' "$MANIFEST_FILE")
+          RELEASE=$(jq -r '.config.release' "$MANIFEST_FILE")
+          BASENAME="${IMAGE_ID}_${VERSION}_${ARCH}"
+          TAGNAME="${IMAGE_ID}_${VERSION}_${ARCH}"
+
+          find ./mkosi.images/base -type f -exec sha256sum {} \; | sort > ./mkosi.output/inputs
+          find ./mkosi.extra/ -type f -exec sha256sum {} \; | sort >> ./mkosi.output/inputs
+          sha256sum mkosi.conf >> ./mkosi.output/inputs
+          sha256sum mkosi.finalize >> ./mkosi.output/inputs
+
+          cp ./mkosi.output/${BASENAME}.SHA256SUMS ./mkosi.output/SHA256SUMS
+
+          echo "Proceeding to publish new release for: ${TAGNAME}"
+
+          if [[ "${PR}" == "true" ]]; then
+            echo "Pull request detected. Skipping release creation for ${TAGNAME}."
+            rm -rf  \
+              ./${TAGNAME}.raw.zst \
+              ./${TAGNAME}.efi \
+              ./${TAGNAME}.esp.raw.zst \
+              ./${TAGNAME}.usr-x86-64-verity-sig.*.raw.zst \
+              ./${TAGNAME}.usr-x86-64-verity.*.raw.zst \
+              ./${TAGNAME}.usr-x86-64.*.raw.zst \
+              ./inputs \
+              ./SHA256SUMS \
+              ./notes
+            exit 0
+          fi
+
+          git config --global --add safe.directory "${PWD}"
+
+          cd "mkosi.output"
+
+          echo "Searching for ${TAGNAME}.raw.zst"
+          ls -la .
+          if [[ ! -f ./${TAGNAME}.raw.zst ]]; then
+            echo "No image built. Skipping."
+            exit 0
+          fi
+          cat ./SHA256SUMS
+          echo "Creating new release for: ${TAGNAME}"
+
+          {
+          echo "Release:"
+          echo "\`\`\`"
+          cat ./SHA256SUMS
+          echo "\`\`\`"
+          echo ""
+          echo "Built using input files:"
+          echo "\`\`\`"
+          cat ./inputs
+          echo "\`\`\`"
+          } > notes
+
+          gh release delete \
+            --cleanup-tag \
+            --yes \
+            "${TAGNAME}" \
+            || true
+
+          gh release create \
+            --title "${IMAGE_ID} ${VERSION} for Debian ${RELEASE} (${ARCH})" \
+            --notes-file notes \
+            "${TAGNAME}" \
+            --latest=false \
+            ./${TAGNAME}.raw.zst \
+            ./${TAGNAME}.efi \
+            ./${TAGNAME}.esp.raw.zst \
+            ./${TAGNAME}.usr-x86-64-verity-sig.*.raw.zst \
+            ./${TAGNAME}.usr-x86-64-verity.*.raw.zst \
+            ./${TAGNAME}.usr-x86-64.*.raw.zst \
+            ./${TAGNAME}.manifest \
+            ./SHA256SUMS \
+            ./inputs
+
+          rm -rf  \
+            ./${TAGNAME}.raw.zst \
+            ./${TAGNAME}.efi \
+            ./${TAGNAME}.esp.raw.zst \
+            ./${TAGNAME}.usr-x86-64-verity-sig.*.raw.zst \
+            ./${TAGNAME}.usr-x86-64-verity.*.raw.zst \
+            ./${TAGNAME}.usr-x86-64.*.raw.zst \
+            ./${TAGNAME}.manifest \
+            ./inputs \
+            ./SHA256SUMS \
+            ./notes
