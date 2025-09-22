@@ -40,7 +40,7 @@ jobs:
         uses: systemd/mkosi@main
       - name: build
         run: |
-          mkosi build -f
+          mkosi build -f --dependency=base
       - name: Prepare environment
         run: |
           # Lowercase the image uri
