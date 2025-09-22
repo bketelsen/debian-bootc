@@ -38,9 +38,7 @@ jobs:
     steps:
       - name: setup-mkosi
         uses: systemd/mkosi@main
-      - name: build
-        run: |
-          mkosi build -f --dependency=base
+
       - name: Prepare environment
         run: |
           # Lowercase the image uri
@@ -59,7 +57,9 @@ jobs:
           # https://artifacthub.io/docs/topics/repositories/container-images/
           # https://linux.die.net/man/1/date
           echo "date=$(date -u +%Y\-%m\-%d\T%H\:%M\:%S\Z)" >> $GITHUB_OUTPUT
-
+      - name: build
+        run: |
+          mkosi build -f --dependency=base
       - name: Image Metadata
         uses: docker/metadata-action@c1e51972afc2121e065aed6d45c65596fe445f3f # v5
         id: metadata
