@@ -8,3 +8,4 @@ mkosi.tools/
 mkosi.output/
 mkosi.tools.manifest
 mkosi.builddir/**
+scripts/tmp.sh
