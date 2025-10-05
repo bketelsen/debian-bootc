@@ -32,4 +32,3 @@ RUN passwd -d root
 ### LINTING
 ## Verify final image and contents are correct.
 RUN bootc container lint
-LABEL containers.bootc 1
