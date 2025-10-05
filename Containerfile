@@ -28,8 +28,7 @@ RUN set -o pipefail && \
         xargs -a /usr/share/factory/etc/sgid-bins.txt chmod g+s; \
     fi
 
-RUN userdel -f root
-
+RUN passwd -d root
 ### LINTING
 ## Verify final image and contents are correct.
 RUN bootc container lint
